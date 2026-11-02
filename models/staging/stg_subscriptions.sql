@@ -1,0 +1,1 @@
+select subscription_id::int subscription_id, merchant_id::int merchant_id, plan, mrr::double mrr, start_date::date start_date, nullif(end_date::varchar,'')::date end_date from {{ ref('raw_subscriptions') }}

@@ -1,0 +1,4 @@
+ls_metrics:
+  target: dev
+  outputs:
+    dev: {type: duckdb, path: ls.duckdb, threads: 4}

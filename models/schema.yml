@@ -1,0 +1,32 @@
+version: 2
+models:
+  - name: stg_merchants
+    columns:
+      - name: merchant_id
+        tests: [unique, not_null]
+      - name: region
+        tests: [{accepted_values: {arguments: {values: [CA, US, EU, AU]}}}]
+  - name: stg_subscriptions
+    columns:
+      - name: subscription_id
+        tests: [unique, not_null]
+      - name: merchant_id
+        tests: [{relationships: {arguments: {to: ref('stg_merchants'), field: merchant_id}}}]
+  - name: stg_payments
+    columns:
+      - name: payment_id
+        tests: [unique, not_null]
+      - name: merchant_id
+        tests: [not_null, {relationships: {arguments: {to: ref('stg_merchants'), field: merchant_id}}}]
+  - name: fct_mrr_monthly
+    config: {contract: {enforced: true}}
+    columns:
+      - {name: month, data_type: date, constraints: [{type: not_null}]}
+      - {name: merchant_id, data_type: integer, constraints: [{type: not_null}]}
+      - {name: plan, data_type: varchar}
+      - {name: mrr, data_type: double}
+  - name: mrr_movements
+    description: MRR bridge per month, Finance definition.
+    columns:
+      - name: month
+        tests: [unique, not_null]

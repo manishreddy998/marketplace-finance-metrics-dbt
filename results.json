@@ -1,0 +1,14 @@
+{
+ "merchants": 800,
+ "payments": 14261,
+ "mrr_rows": 9881,
+ "dec_2025": {
+  "opening": 336470.0,
+  "new": 0.0,
+  "expansion": 0.0,
+  "churned": 7009.0,
+  "closing": 329461.0
+ },
+ "total_churned_2025": 51839.0,
+ "dbt_build": "PASS=24 ERROR=0 (3 seeds, 6 models, 15 tests), 3.9 s wall on box"
+}
