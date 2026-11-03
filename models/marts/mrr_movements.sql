@@ -8,4 +8,4 @@ select month, sum(prev_mrr) opening_mrr,
   sum(case when prev_mrr>0 and mrr>0 then mrr-prev_mrr else 0 end) expansion_mrr,
   sum(case when prev_mrr>0 and mrr=0 then prev_mrr else 0 end) churned_mrr,
   sum(mrr) closing_mrr
-from j where month <= date '2025-12-01' group by 1 order by 1
+from j where month <= date '2018-08-01' group by 1 order by 1

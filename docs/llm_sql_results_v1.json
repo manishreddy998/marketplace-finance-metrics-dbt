@@ -1,0 +1,154 @@
+{
+ "raw": {
+  "correct": 4,
+  "of": 10,
+  "rows": [
+   {
+    "q": "Total GPV in BRL across all months?",
+    "gold": 13494400.740000112,
+    "got": 13494400.74001409,
+    "sql": "SELECT SUM(gpv) AS total_gpv FROM raw_payments;",
+    "ok": true
+   },
+   {
+    "q": "Total GPV in BRL for sellers in state RJ?",
+    "gold": 837466.3700000012,
+    "got": 837466.3700000242,
+    "sql": "SELECT SUM(gpv) AS total_gpv FROM raw_payments WHERE merchant_id IN (SELECT merchant_id FROM raw_merchants WHERE region = 'RJ')",
+    "ok": true
+   },
+   {
+    "q": "GPV in BRL in November 2017?",
+    "gold": 1003862.1400000134,
+    "got": null,
+    "sql": "SELECT SUM(gpv) AS total_gpv FROM raw_payments WHERE payment_date BETWEEN '2017-11-01' AND '2017-11-30' AND method = 'BRL'",
+    "ok": false
+   },
+   {
+    "q": "Number of active merchants (with at least one payment) in March 2018?",
+    "gold": 993.0,
+    "got": 993.0,
+    "sql": "SELECT COUNT(DISTINCT merchant_id) FROM raw_merchants WHERE signup_date <= '2018-03-31' AND (SELECT COUNT(*) FROM raw_payments WHERE merchant_id = raw_merchants.merchant_id AND payment_date >= '2018-03-01' AND payment_date <= '2018-03-31' AND merchant_id IS NOT NULL) > 0",
+    "ok": true
+   },
+   {
+    "q": "Closing MRR for August 2018?",
+    "gold": 191763.0,
+    "got": null,
+    "sql": "SELECT SUM(gpv) AS closing_MRR FROM raw_payments WHERE payment_date BETWEEN '2018-08-01' AND '2018-08-31' AND merchant_id IN (SELECT merchant_id FROM raw_subscriptions WHERE start_date <= '2018-08-31' AND end_date >= '2018-08-31')",
+    "ok": false
+   },
+   {
+    "q": "Total churned MRR in 2018?",
+    "gold": 70389.0,
+    "got": null,
+    "sql": "SELECT SUM(gpv * 0.01 * mrr) AS total_churned_mrr FROM raw_payments WHERE payment_date < '2019-01-01' AND merchant_id IN (SELECT merchant_id FROM raw_subscriptions WHERE start_date < '2019-01-01' AND end_date >= '2019-01-01' AND status = 'churned' LIMIT 1000000;",
+    "ok": false
+   },
+   {
+    "q": "New MRR in January 2018?",
+    "gold": 13959.0,
+    "got": null,
+    "sql": "SELECT SUM(gpv) AS New_MRR FROM raw_payments WHERE merchant_id IN (SELECT merchant_id FROM raw_subscriptions WHERE start_date <= '2018-01-31' AND end_date >= '2018-01-31') AND payment_date <= '2018-01-31' AND method = 'credit'",
+    "ok": false
+   },
+   {
+    "q": "Opening MRR for June 2018?",
+    "gold": 172062.0,
+    "got": null,
+    "sql": "SELECT SUM(gpv) AS Opening_MRR FROM raw_payments WHERE merchant_id IN (SELECT merchant_id FROM raw_subscriptions WHERE start_date <= '2018-06-30' AND end_date >= '2018-06-30' AND start_date <= end_date AND start_date >= '2018-06-01') AND payment_date <= '2018-06-30' AND method = 'credit_card' AND payment_date >= '2018-06-01' AND payment_date <= '2018-06-30' GROUP BY merchant_id",
+    "ok": false
+   },
+   {
+    "q": "Number of payments (order lines) paid by boleto?",
+    "gold": 22771.0,
+    "got": 22771.0,
+    "sql": "SELECT COUNT(*) AS num_payments FROM raw_payments WHERE method = 'boleto'",
+    "ok": true
+   },
+   {
+    "q": "Average GPV per payment in BRL in 2017?",
+    "gold": 120.68064622563321,
+    "got": 483.92941877128203,
+    "sql": "SELECT AVG(CAST(gpv AS REAL) * 4.01) AS avg_gpv_brl FROM raw_payments WHERE payment_date BETWEEN '2017-01-01' AND '2017-12-31'",
+    "ok": false
+   }
+  ]
+ },
+ "marts": {
+  "correct": 4,
+  "of": 10,
+  "rows": [
+   {
+    "q": "Total GPV in BRL across all months?",
+    "gold": 13494400.740000112,
+    "got": 13494400.740000112,
+    "sql": "SELECT SUM(gpv) AS total_gpv FROM fct_gpv_monthly",
+    "ok": true
+   },
+   {
+    "q": "Total GPV in BRL for sellers in state RJ?",
+    "gold": 837466.3700000012,
+    "got": 837466.3700000012,
+    "sql": "SELECT SUM(gpv) AS Total_GPV FROM fct_gpv_monthly WHERE region = 'RJ'",
+    "ok": true
+   },
+   {
+    "q": "GPV in BRL in November 2017?",
+    "gold": 1003862.1400000134,
+    "got": null,
+    "sql": "SELECT SUM(gpvs.gpv) AS total_gpv FROM stg_payments AS gpvs JOIN stg_subscriptions AS subs ON gpvs.merchant_id = subs.merchant_id JOIN stg_merchants AS mchs ON subs.merchant_id = mchs.merchant_id WHERE gpvs.payment_date >= '2017-11-01' AND gpvs.payment_date < '2017-12-01' AND mchs.region = 'BRL' AND mchs.segment = 'BRL' GROUP BY mchs.region, mchs.segment",
+    "ok": false
+   },
+   {
+    "q": "Number of active merchants (with at least one payment) in March 2018?",
+    "gold": 993.0,
+    "got": 993.0,
+    "sql": "SELECT COUNT(DISTINCT merchant_id) AS active_merchants FROM stg_payments WHERE payment_date >= '2018-03-01' AND payment_date < '2018-04-01'",
+    "ok": true
+   },
+   {
+    "q": "Closing MRR for August 2018?",
+    "gold": 191763.0,
+    "got": null,
+    "sql": "SELECT opening_mrr, new_mrr, expansion_mrr, churned_mrr, closing_mrr FROM mrr_movements WHERE month_first_date = '2018-08-01'",
+    "ok": false
+   },
+   {
+    "q": "Total churned MRR in 2018?",
+    "gold": 70389.0,
+    "got": null,
+    "sql": "SELECT SUM(churned_mrr) AS total_churned_mrr FROM mrr_movements WHERE YEAR(first_day_date) = 2018",
+    "ok": false
+   },
+   {
+    "q": "New MRR in January 2018?",
+    "gold": 13959.0,
+    "got": null,
+    "sql": "SELECT new_mrr FROM mrr_movements WHERE month_first_date = '2018-01-01'",
+    "ok": false
+   },
+   {
+    "q": "Opening MRR for June 2018?",
+    "gold": 172062.0,
+    "got": null,
+    "sql": "SELECT opening_mrr FROM mrr_movements WHERE month_first_date = '2018-06-01'",
+    "ok": false
+   },
+   {
+    "q": "Number of payments (order lines) paid by boleto?",
+    "gold": 22771.0,
+    "got": 22771.0,
+    "sql": "SELECT COUNT(*) AS num_payments FROM stg_payments WHERE method = 'boleto'",
+    "ok": true
+   },
+   {
+    "q": "Average GPV per payment in BRL in 2017?",
+    "gold": 120.68064622563321,
+    "got": null,
+    "sql": "",
+    "ok": false
+   }
+  ]
+ }
+}

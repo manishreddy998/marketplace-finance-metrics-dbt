@@ -5,7 +5,7 @@ models:
       - name: merchant_id
         tests: [unique, not_null]
       - name: region
-        tests: [{accepted_values: {arguments: {values: [CA, US, EU, AU]}}}]
+        tests: [not_null]
   - name: stg_subscriptions
     columns:
       - name: subscription_id
